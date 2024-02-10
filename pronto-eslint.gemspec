@@ -10,10 +10,8 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.author = 'Mindaugas Mozūras'
   s.email = 'mindaugas.mozuras@gmail.com'
-  s.homepage = 'http://github.com/mmozuras/pronto-eslint'
-  s.summary = <<-EOF
-    Pronto runner for ESLint, pluggable linting utility for JavaScript and JSX
-  EOF
+  s.homepage = 'https://github.com/prontolabs/pronto-eslint'
+  s.summary = 'Pronto runner for ESLint, pluggable linting utility for JavaScript and JSX'
 
   s.licenses = ['MIT']
   s.required_ruby_version = '>= 2.3.0'
@@ -35,8 +33,4 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_dependency('pronto', '~> 0.11.0')
-  s.add_dependency('eslintrb', '~> 2.0', '>= 2.0.0')
-  s.add_development_dependency('rake', '~> 12.0')
-  s.add_development_dependency('rspec', '~> 3.4')
-  s.add_development_dependency('rspec-its', '~> 1.2')
 end

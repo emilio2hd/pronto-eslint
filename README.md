@@ -5,13 +5,21 @@
 [![Gem Version](https://badge.fury.io/rb/pronto-eslint.png)](http://badge.fury.io/rb/pronto-eslint)
 [![Dependency Status](https://gemnasium.com/prontolabs/pronto-eslint.png)](https://gemnasium.com/prontolabs/pronto-eslint)
 
-Pronto runner for [ESlint](http://eslint.org), pluggable linting utility for JavaScript and JSX. [What is Pronto?](https://github.com/prontolabs/pronto)
+Pronto runner for [ESlint](http://eslint.org), that uses npm eslint package to lint your Javascript/Typescript code.
 
-## Prerequisites
+[What is Pronto?](https://github.com/prontolabs/pronto)
 
-You'll need to install one of the runtimes supported by [ExecJS](https://github.com/sstephenson/execjs#execjs).
+
+Make sure you have a [.eslintrc.*](https://eslint.org/docs/latest/use/configure/configuration-files) file in your project directory.
 
 ## Configuration
 
-Configuring ESLint via .eslintrc will work just fine with pronto-eslint, though it will not support
-searching higher up the path hierarch. To use an absolute path to your config, use `ESLINT_CONFIG`.
+Configuring ESLint via .eslintrc will work just fine with pronto-eslint. You can use `.pronto.yml` to change the default configuration:
+```yml
+# default config
+eslint:
+  bin_path: 'npx eslint' # if no binary informed, it will try to run using npx.
+  eslint_config_file: '', # Use this to inform a custom .eslintrc file
+  files: ['.ts', '.js', '.es6', '.js.es6', '.jsx'] # list of file to be verified
+```
+

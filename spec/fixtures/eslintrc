@@ -1,0 +1,20 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module"
+  },
+  "rules": {
+    "curly": "error",
+    "no-bitwise": "error",
+    "eqeqeq": "error",
+    "guard-for-in": "error",
+    "no-use-before-define": "error",
+    "no-caller": "error",
+    "no-new-func": "error",
+    "no-undef": "error",
+    "strict": "error"
+  },
+  "env": {
+    "browser": true
+  }
+}

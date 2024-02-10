@@ -1,46 +1,45 @@
 require 'spec_helper'
 
-module Pronto
-  describe ESLint do
-    let(:eslint) { ESLint.new(patches) }
+RSpec.describe Pronto::Eslint::Runner do
+  let(:eslint) { Pronto::Eslint::Runner.new(patches) }
 
-    describe '#run' do
-      subject { eslint.run }
+  describe '#run' do
+    subject { eslint.run }
 
-      context 'patches are nil' do
-        let(:patches) { nil }
-        it { should == [] }
+    context 'patches are nil' do
+      let(:patches) { nil }
+      it { should == [] }
+    end
+
+    context 'no patches' do
+      let(:patches) { [] }
+      it { should == [] }
+    end
+
+    context 'invalid .eslintrc config' do
+      include_context 'test repo'
+      include_context 'invalid_eslintrc'
+
+      let(:patches) { repo.diff('master') }
+
+      it 'raises error' do
+        expect { subject }
+          .to raise_error(
+            Pronto::Eslint::EslintFatalError,
+            '.eslintrc: Parsing error: ecmaVersion must be a number or "latest". Received value of type string instead.'
+          )
       end
+    end
 
-      context 'no patches' do
-        let(:patches) { [] }
-        it { should == [] }
-      end
+    context 'patches with a four and a five warnings' do
+      include_context 'test repo'
+      include_context 'valid_eslintrc'
 
-      context 'invalid .eslintrc config' do
-        include_context 'test repo'
-        include_context 'eslintrc'
+      let(:patches) { repo.diff('master') }
 
-        let(:patches) { repo.diff('master') }
+      its(:count) { should == 9 }
 
-        its(:count) { should == 2 }
-
-        it 'all messages are parsing errors' do
-          subject.each do |element|
-            element.msg.should ==
-              'Parsing error: ecmaVersion must be 3, 5, 6, or 7.'
-          end
-        end
-      end
-
-      context 'patches with a four and a five warnings' do
-        include_context 'test repo'
-
-        let(:patches) { repo.diff('master') }
-
-        its(:count) { should == 9 }
-        its(:'first.msg') { should == "curly: Expected { after 'if' condition." }
-      end
+      its(:'first.msg') { should == "no-undef: 'foo' is not defined." }
     end
   end
 end

@@ -1,50 +1,22 @@
+# frozen_string_literal: true
+
 require 'pronto'
-require 'eslintrb'
+
+require_relative 'eslint/version'
+require_relative 'eslint/linter'
+require_relative 'eslint/result_parser'
+require_relative 'eslint/runner'
 
 module Pronto
-  class ESLint < Runner
-    def run
-      return [] unless @patches
+  module Eslint
+    class Error < StandardError; end
+    class EslintFatalError < StandardError; end
 
-      @patches.select { |patch| patch.additions > 0 }
-        .select { |patch| js_file?(patch.new_file_full_path) }
-        .map { |patch| inspect(patch) }
-        .flatten.compact
-    end
-
-    def inspect(patch)
-      offences = Eslintrb.lint(patch.new_file_full_path, options).compact
-
-      fatals = offences.select { |offence| offence['fatal'] }
-        .map { |offence| new_message(offence, nil) }
-
-      return fatals if fatals && !fatals.empty?
-
-      offences.map do |offence|
-        patch.added_lines.select { |line| line.new_lineno == offence['line'] }
-          .map { |line| new_message(offence, line) }
+    # This patch enhance eslint options, opening it to allow user to pass custom options
+    module ConfigPatch
+      def eslint_config
+        @config_hash['eslint'] || {}
       end
-    end
-
-    def options
-      if ENV['ESLINT_CONFIG']
-        JSON.parse(IO.read(ENV['ESLINT_CONFIG']))
-      else
-        File.exist?('.eslintrc') ? :eslintrc : :defaults
-      end
-    end
-
-    def new_message(offence, line)
-      path = line ? line.patch.delta.new_file[:path] : '.eslintrc'
-      level = line ? :warning : :fatal
-      message = offence['message']
-      message = "#{offence['ruleId']}: #{message}" if offence['ruleId']
-
-      Message.new(path, line, level, message, nil, self.class)
-    end
-
-    def js_file?(path)
-      %w[.js .es6 .js.es6 .jsx].include?(File.extname(path))
     end
   end
 end
