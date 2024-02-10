@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
 
   s.licenses = ['MIT']
   s.required_ruby_version = '>= 2.3.0'
-  s.rubygems_version = '1.8.23'
 
   s.files = `git ls-files`.split($RS).reject do |file|
     file =~ %r{^(?:
@@ -32,5 +31,5 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ['LICENSE', 'README.md']
   s.require_paths = ['lib']
 
-  s.add_dependency('pronto', '~> 0.11.0')
+  s.add_dependency('pronto', '>= 0.11.2')
 end

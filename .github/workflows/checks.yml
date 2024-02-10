@@ -19,5 +19,14 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+
+    - name: Run pronto
+      run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }} >> annotations.json
+
+    - name: Annotate code
+      uses: emilio2hd/pronto-annotate-action@main
+      with:
+        reportPath: annotations.json
+
     - name: rake spec
       run: bundle exec rake spec
