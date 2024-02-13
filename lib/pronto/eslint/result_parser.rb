@@ -25,7 +25,7 @@ module Pronto
         raise 'To process a fatal errors, eslint_config is required' if eslint_config.nil?
 
         result
-          .select { |offence| offence[:fatalErrorCount] > 0 }
+          .select { |offence| (offence[:fatalErrorCount]).positive? }
           .flat_map { |offence| offence[:messages] }
           .map do |offence|
             msg = "#{eslint_config}: #{offence[:message]}"
@@ -39,7 +39,7 @@ module Pronto
 
       def error_with_lines
         @error_with_lines ||= @result
-          .select { |offence| offence[:errorCount] + offence[:warningCount] > 0 }
+          .select { |offence| (offence[:errorCount] + offence[:warningCount]).positive? }
           .flat_map { |offence| offence[:messages] }
           .select { |offence| offence[:line] }
       end

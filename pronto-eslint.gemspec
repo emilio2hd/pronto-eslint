@@ -1,6 +1,6 @@
-# -*- encoding: utf-8 -*-
+# frozen_string_literal: true
 
-$LOAD_PATH.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 require 'pronto/eslint/version'
 require 'English'
 
@@ -16,18 +16,8 @@ Gem::Specification.new do |s|
   s.licenses = ['MIT']
   s.required_ruby_version = '>= 2.3.0'
 
-  s.files = `git ls-files`.split($RS).reject do |file|
-    file =~ %r{^(?:
-    spec/.*
-    |Gemfile
-    |Rakefile
-    |\.rspec
-    |\.gitignore
-    |\.rubocop.yml
-    |\.travis.yml
-    )$}x
-  end
-  s.test_files = []
+  s.files = Dir.glob('lib/**/*.rb') + ['README.md', 'LICENSE', 'CHANGELOG.md']
+
   s.extra_rdoc_files = ['LICENSE', 'README.md']
   s.require_paths = ['lib']
 

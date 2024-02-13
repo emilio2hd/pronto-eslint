@@ -21,7 +21,7 @@ module Pronto
         return [] unless @patches
 
         @patches
-          .select { |patch| patch.additions > 0 && js_file?(patch.new_file_full_path) }
+          .select { |patch| patch.additions.positive? && js_file?(patch.new_file_full_path) }
           .flat_map { |patch| inspect(patch) }
           .compact
       end
