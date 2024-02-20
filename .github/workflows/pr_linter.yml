@@ -17,10 +17,8 @@ jobs:
 
       - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
         with:
-          ruby-version: 2.4
+          ruby-version: 2.5
           bundler-cache: true
-
-      - run: bundle install
 
       - name: Check for offenses
         run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }} >> annotations.json
