@@ -2,9 +2,7 @@ name: Pull Request Check
 
 on:
   pull_request:
-    branches:
-      - master
-      - main
+    branches: [master]
     paths-ignore:
       - '**.md'
 

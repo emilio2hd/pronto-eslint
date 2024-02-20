@@ -2,9 +2,7 @@ name: Lint Code Base
 
 on:
   pull_request:
-    branches:
-      - master
-      - main
+    branches: [master]
     paths-ignore:
       - '**.md'
 
@@ -23,7 +21,7 @@ jobs:
           bundler-cache: true
 
       - name: Check for offenses
-        run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }} >> annotations.json
+        run: bundle exec pronto run -f annotations -c $(git name-rev --name-only HEAD) >> annotations.json
 
       - name: Write annotations
         uses: emilio2hd/pronto-annotate-action@main
