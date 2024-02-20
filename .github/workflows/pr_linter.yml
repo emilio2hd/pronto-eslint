@@ -21,7 +21,7 @@ jobs:
           bundler-cache: true
 
       - name: Check for offenses
-        run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }}  >> annotations.json
+        run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }}
 
       - name: Write annotations
         uses: emilio2hd/pronto-annotate-action@main
