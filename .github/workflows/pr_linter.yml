@@ -24,6 +24,6 @@ jobs:
         run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }}  >> annotations.json
 
       - name: Write annotations
-        uses: emilio2hd/pronto-annotate-action@0.1.0
+        uses: emilio2hd/pronto-annotate-action@main
         with:
           reportPath: annotations.json
