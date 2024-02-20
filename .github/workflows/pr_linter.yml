@@ -23,8 +23,6 @@ jobs:
       - name: Check for offenses
         run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }}  >> annotations.json
 
-      - run: cat annotations.json
-
       - name: Write annotations
         uses: emilio2hd/pronto-annotate-action@0.1.0
         with:
