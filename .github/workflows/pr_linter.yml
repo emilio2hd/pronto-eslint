@@ -1,0 +1,29 @@
+name: Lint Code Base
+
+on:
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1.171.0
+        with:
+          ruby-version: 2.5
+          bundler-cache: true
+
+      - name: Check for offenses
+        run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref } >> annotations.json
+
+      - name: Write annotations
+        uses: emilio2hd/pronto-annotate-action@main
+        with:
+          reportPath: annotations.json
