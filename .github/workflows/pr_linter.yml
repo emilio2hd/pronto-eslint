@@ -15,13 +15,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+      - uses: ruby/setup-ruby@v1.171.0
         with:
           ruby-version: 2.5
           bundler-cache: true
 
       - name: Check for offenses
-        run: bundle exec pronto run -f annotations -c $(git name-rev --name-only HEAD) >> annotations.json
+        run: bundle exec pronto run -f annotations -c origin/${{ github.base_ref }}
 
       - name: Write annotations
         uses: emilio2hd/pronto-annotate-action@main
