@@ -44,12 +44,12 @@ module Pronto
 
       private
 
-      def build_command(file_path)
+      def build_command(files_path)
         command = bin_path
         command.push('-f', 'json', '--no-color')
         command.push('-c', eslint_file_path) if eslint_file_path_present?
         command.push('--exit-on-fatal-error')
-        command.push(file_path)
+        command.concat(Array(files_path))
       end
 
       def eslint_file_path_present?

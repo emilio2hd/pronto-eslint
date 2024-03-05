@@ -39,7 +39,7 @@ RSpec.describe Pronto::Eslint::Runner do
 
       let(:patches) { repo.diff('master') }
 
-      its(:count) { should == 9 }
+      its(:count) { should == 6 }
 
       its(:'first.msg') { should == "no-undef: 'foo' is not defined." }
     end

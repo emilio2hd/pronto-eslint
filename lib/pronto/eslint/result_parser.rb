@@ -5,20 +5,27 @@ module Pronto
     class ResultParser
       SEVERITY_LEVELS = [nil, :warning, :error].freeze
 
-      def initialize(eslint_result, lines, eslint_config = nil)
+      def initialize(eslint_result, patches, eslint_config = nil)
         @result = JSON.parse(eslint_result, symbolize_names: true)
-        @lines = lines
+        @patches = patches
         @eslint_config = eslint_config
       end
 
       def error_messages
-        error_with_lines
-          .map do |offence|
+        return [] if error_with_lines.empty?
+
+        patches.flat_map do |patch|
+          lines = patch.added_lines
+
+          file_offences = error_with_lines.find { |offence| offence[:filePath] == patch.new_file_full_path.to_s }
+
+          file_offences[:messages].map do |offence|
             range = offence[:line]..(offence[:endLine] || offence[:line])
             line = lines.select { |l| range.cover?(l.new_lineno) }.last
             build_error_message(offence, line) if line
           end
           .compact
+        end
       end
 
       def fatal_messages
@@ -35,13 +42,17 @@ module Pronto
 
       private
 
-      attr_reader :result, :lines, :eslint_config
+      attr_reader :result, :patches, :eslint_config
 
       def error_with_lines
         @error_with_lines ||= @result
           .select { |offence| (offence[:errorCount] + offence[:warningCount]).positive? }
-          .flat_map { |offence| offence[:messages] }
-          .select { |offence| offence[:line] }
+          .flat_map do |offence|
+            new_offence = offence.slice(:messages, :filePath)
+            new_offence[:messages] = offence[:messages].select { |message| message[:line] }
+            new_offence
+          end
+          .reject { |offence| offence[:messages].empty? }
       end
 
       def build_error_message(offence, line)

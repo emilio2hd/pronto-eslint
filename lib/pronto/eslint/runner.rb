@@ -18,21 +18,13 @@ module Pronto
       end
 
       def run
-        return [] unless @patches
+        return [] if !@patches || js_files.empty?
 
-        @patches
-          .select { |patch| patch.additions.positive? && js_file?(patch.new_file_full_path) }
-          .flat_map { |patch| inspect(patch) }
-          .compact
-      end
-
-      def inspect(patch)
-        lines = patch.added_lines
-        linter_output = linter.analyze(patch.new_file_full_path.to_s)
+        linter_output = linter.analyze(js_files)
 
         return [] if linter_output.empty?
 
-        Pronto::Eslint::ResultParser.new(linter_output, lines).error_messages
+        Pronto::Eslint::ResultParser.new(linter_output, js_patches).error_messages
       end
 
       def js_file?(path)
@@ -40,6 +32,14 @@ module Pronto
       end
 
       private
+
+      def js_patches
+        @js_patches ||= @patches.select { |patch| patch.additions.positive? && js_file?(patch.new_file_full_path) }
+      end
+
+      def js_files
+        @js_files ||= js_patches.map { |patch| patch.new_file_full_path.to_s }.compact
+      end
 
       def linter
         @linter ||= Pronto::Eslint::Linter.new(
