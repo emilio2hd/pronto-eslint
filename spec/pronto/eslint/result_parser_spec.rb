@@ -5,22 +5,28 @@ require 'spec_helper'
 RSpec.describe Pronto::Eslint::ResultParser do
   let(:eslint_result_json) { eslint_result.to_json }
 
-  let(:lines) do
+  let(:patches) do
     [
       instance_double(
-        'Pronto::Git::Line',
-        new_lineno: 1,
-        commit_sha: 'asdasdasdas',
-        patch: instance_double(
-          'Pronto::Git::Patch',
-          delta: instance_double('Pronto::Git::Delta', new_file: { path: '/path/to/file.js' })
-        )
+        'Pronto::Git::Patch',
+        new_file_full_path: '/path/to/file.js',
+        added_lines: [
+          instance_double(
+            'Pronto::Git::Line',
+            new_lineno: 1,
+            commit_sha: 'asdasdasdas',
+            patch: instance_double(
+              'Pronto::Git::Patch',
+              delta: instance_double('Pronto::Git::Delta', new_file: { path: '/path/to/file.js' })
+            )
+          )
+        ],
       )
     ]
   end
 
   describe '#error_messages' do
-    subject(:result_parser) { described_class.new(eslint_result_json, lines) }
+    subject(:result_parser) { described_class.new(eslint_result_json, patches) }
 
     let(:eslint_result) do
       [
@@ -152,7 +158,7 @@ RSpec.describe Pronto::Eslint::ResultParser do
   end
 
   describe '#fatal_messages' do
-    subject(:result_parser) { described_class.new(eslint_result_json, lines, eslint_config) }
+    subject(:result_parser) { described_class.new(eslint_result_json, patches, eslint_config) }
 
     let(:eslint_config) { '.eslintrc.js' }
     let(:fatal_error_message) { 'fatal error message' }
