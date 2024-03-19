@@ -3,184 +3,65 @@
 require 'spec_helper'
 
 RSpec.describe Pronto::Eslint::ResultParser do
-  let(:eslint_result_json) { eslint_result.to_json }
-
-  let(:patches) do
-    [
-      instance_double(
-        'Pronto::Git::Patch',
-        new_file_full_path: '/path/to/file.js',
-        added_lines: [
-          instance_double(
-            'Pronto::Git::Line',
-            new_lineno: 1,
-            commit_sha: 'asdasdasdas',
-            patch: instance_double(
-              'Pronto::Git::Patch',
-              delta: instance_double('Pronto::Git::Delta', new_file: { path: '/path/to/file.js' })
-            )
-          )
-        ],
-      )
-    ]
-  end
-
   describe '#error_messages' do
-    subject(:result_parser) { described_class.new(eslint_result_json, patches) }
+    subject { described_class.new(eslint_result_json, patches) }
 
-    let(:eslint_result) do
-      [
-        {
-          filePath: '/path/to/file.js',
-          messages: [
-            {
-              severity: 2,
-              message: 'Lint error',
-              line: 1,
-              column: 10,
-              endLine: 1,
-              endColumn: 20
-            }
-          ],
-          errorCount: 1,
-          warningCount: 0
-        }
-      ]
-    end
+    let(:eslint_result) { [] }
+    let(:eslint_result_json) { eslint_result.to_json }
+    let(:patches) { [double('git change')] }
 
-    context 'when eslint result contains offenses' do
-      it 'returns an array of Pronto::Message objects' do
-        messages = result_parser.error_messages
+    let(:error_messages_extractor) { instance_double('Pronto::Eslint::MessagesExtractor') }
+    let(:error_messages) { [instance_double('Pronto::Message')] }
 
-        expect(messages.size).to eq(1)
-        expect(messages.first.path).to eq('/path/to/file.js')
-        expect(messages.first.line.new_lineno).to eq(1)
-        expect(messages.first.level).to eq(:error)
-        expect(messages.first.msg).to eq('Lint error')
-        expect(messages.first.runner).to eq(Pronto::Eslint::Runner)
-      end
-    end
+    it 'call error messages extractor' do
+      allow(Pronto::Eslint::MessagesExtractor)
+        .to receive(:new)
+        .and_return(error_messages_extractor)
+      allow(error_messages_extractor)
+        .to receive(:extract_messages)
+        .and_return(error_messages)
 
-    context 'when result contains no offenses' do
-      let(:eslint_result) do
-        [
-          {
-            filePath: '/path/to/file.js',
-            messages: [],
-            errorCount: 0,
-            warningCount: 0
-          }
-        ]
-      end
+      expect(subject.error_messages).to eq(error_messages)
 
-      it 'returns an empty array' do
-        expect(result_parser.error_messages).to eq([])
-      end
-    end
-
-    context 'when message has no line number' do
-      let(:eslint_result) do
-        [
-          {
-            filePath: '/path/to/file.js',
-            messages: [
-              {
-                severity: 2,
-                message: 'Lint error',
-                line: nil,
-                column: 10,
-                endLine: 1,
-                endColumn: 20
-              }
-            ],
-            errorCount: 1,
-            warningCount: 0
-          }
-        ]
-      end
-
-      it 'returns an empty array' do
-        expect(result_parser.error_messages).to eq([])
-      end
-    end
-
-    context 'when message has no warningCount or errorCount greater than 1' do
-      let(:eslint_result) do
-        [
-          {
-            filePath: '/path/to/file.js',
-            messages: [
-              {
-                severity: 1,
-                message: 'Some random message',
-                line: 1,
-                column: 10,
-                endLine: 1,
-                endColumn: 20
-              }
-            ],
-            errorCount: 0,
-            warningCount: 0
-          }
-        ]
-      end
-
-      it 'returns an empty array' do
-        expect(result_parser.error_messages).to eq([])
-      end
-    end
-
-    context 'when offense is not related to changed line' do
-      let(:eslint_result) do
-        [
-          {
-            filePath: '/path/to/file.js',
-            messages: [
-              {
-                severity: 2,
-                message: 'Lint error',
-                line: 2,
-                column: 1,
-                endLine: 2,
-                endColumn: 2
-              }
-            ],
-            errorCount: 1,
-            warningCount: 0
-          }
-        ]
-      end
-
-      it 'returns an empty array' do
-        expect(result_parser.error_messages).to eq([])
-      end
+      allow(Pronto::Eslint::MessagesExtractor)
+        .to receive(:new)
+        .with(eslint_result, patches)
+      expect(error_messages_extractor).to have_received(:extract_messages)
     end
   end
 
   describe '#fatal_messages' do
-    subject(:result_parser) { described_class.new(eslint_result_json, patches, eslint_config) }
+    subject { described_class.new(eslint_result_json, [], eslint_config) }
 
+    let(:eslint_result) { [] }
+    let(:eslint_result_json) { eslint_result.to_json }
     let(:eslint_config) { '.eslintrc.js' }
-    let(:fatal_error_message) { 'fatal error message' }
-    let(:eslint_result) do
-      [
-        {
-          filePath: '/path/to/file.js',
-          messages: [{ fatal: true, severity: 2, message: fatal_error_message }],
-          errorCount: 1,
-          fatalErrorCount: 1
-        }
-      ]
+
+    let(:fatal_messages_extractor) { instance_double('Pronto::Eslint::FatalMessagesExtractor') }
+    let(:fatal_messages) { [instance_double('Pronto::Message')] }
+
+    it 'call fatal messages extractor' do
+      allow(Pronto::Eslint::FatalMessagesExtractor)
+        .to receive(:new)
+        .and_return(fatal_messages_extractor)
+      allow(fatal_messages_extractor)
+        .to receive(:fatal_messages)
+        .and_return(fatal_messages)
+
+      expect(subject.fatal_messages).to eq(fatal_messages)
+
+      allow(Pronto::Eslint::FatalMessagesExtractor)
+        .to receive(:new)
+        .with(eslint_result, eslint_config)
+      expect(fatal_messages_extractor).to have_received(:fatal_messages)
     end
 
-    it 'returns an array of Pronto::Message objects' do
-      messages = result_parser.fatal_messages
+    context 'when eslint_config is nil' do
+      let(:eslint_config) { nil }
 
-      expect(messages.size).to eq(1)
-      expect(messages.first.path).to eq(eslint_config)
-      expect(messages.first.level).to eq(:fatal)
-      expect(messages.first.msg).to eq("#{eslint_config}: #{fatal_error_message}")
-      expect(messages.first.runner).to eq(Pronto::Eslint::Runner)
+      it 'rises an error' do
+        expect { subject.fatal_messages }.to raise_exception(RuntimeError, /eslint_config is required/)
+      end
     end
   end
 end

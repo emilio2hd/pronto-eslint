@@ -4,6 +4,8 @@ require 'pronto'
 
 require_relative 'eslint/version'
 require_relative 'eslint/linter'
+require_relative 'eslint/fatal_messages_extractor'
+require_relative 'eslint/messages_extractor'
 require_relative 'eslint/result_parser'
 require_relative 'eslint/runner'
 
